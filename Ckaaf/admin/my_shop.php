@@ -9,13 +9,57 @@
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" />
     
     <link rel="stylesheet" href="style.css">
+    <style>
+        .myordersnav{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 40px;
+            padding: 30px;
+            background-color:bisque;
+        }
+        #ordernavbar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #ordernavbar li {
+            list-style: none;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        #ordernavbar li a {
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            color: gray;
+        }
+
+        #ordernavbar li a:hover,
+        #ordernavbar li a.active {
+            color: lightseagreen;
+        }
+
+        #ordernavbar li a.active::after,
+        #ordernavbar li a:hover::after {
+            content: "";
+            width: 30%;
+            height: 2px;
+            background: #088178;
+            position: absolute;
+            bottom: -4px;
+            left: 20px;
+        }
+    </style>
     
 </head>
 
 <body>
 
     <section id="header">
-        <a href="#"><img src="img/logo.png" class="logo" alt=""></a>
+        <a href="#"><img src="../img/logo.png" class="logo" alt=""></a>
 
         <div>
             <ul id="navbar">
@@ -38,13 +82,27 @@
         </div>
     </section>
 
-    <section id="hero">
-        <h4>Trade-in-offer</h4>
-        <h2>Super value deals</h2>
-        <h1>On all products</h1>
-        <p>Save more with coupons & up to 70% off! </p>
-        <button>Shop Now</button>
+    <section>
+        <section>
+        <div class="myordersnav">
+            <ul id="ordernavbar">
+                <li><a href="my_shop.php">Home</a></li>
+                <li><a href="../shop.php">Shop</a></li>
+                <li><a href="../about.html">About</a></li>
+                <li><a href="../contact.html">Contact</a></li>
+            </ul>
+        </div>
+        </section>
+
+        <section id="hero">
+            <h4>Trade-in-offer</h4>
+            <h2>Super value deals</h2>
+            <h1>On all products</h1>
+            <p>Save more with coupons & up to 70% off! </p>
+            <button>Shop Now</button>
+        </section>
     </section>
+    
 
     <section id="feature" class="section-p1">
         <div class="fe-box">
@@ -81,7 +139,6 @@
                 // Include the connection file
                 include "../connection.php";
 
-                session_start();
 
                 // Check if connection is successful
                 if (!$conn) {
@@ -97,7 +154,7 @@
                     // Iterate over each product
                     while ($productDetails = mysqli_fetch_assoc($result)) {
                 ?>
-                        <a href="sproduct.php?prodId=<?php echo $productDetails['prodId']; ?>">
+                        <a href="../sproduct.php?prodId=<?php echo $productDetails['prodId']; ?>">
                             <div class="pro">
                                 <img src="data:image/jpg;base64,<?php echo base64_encode($productDetails['prodpic']); ?>" />
                                 <div class="des">
@@ -107,7 +164,7 @@
                                     </div>
                                     <h4>$<?php echo $productDetails['price']; ?></h4>
                                 </div>
-                                <a href="cart.php?"><i class="fal fa-shopping-cart cart"></i></a>
+                                <a href="notloggedin.html"><i class="fal fa-shopping-cart cart"></i></a>
                             </div>
                         </a>
                 <?php
@@ -158,7 +215,7 @@
                     </div>
                     <h4>$78</h4>
                 </div>
-                <a href="#"><i class="fal fa-shopping-cart cart"></i></a>
+                <a href="notloggedin.html"><i class="fal fa-shopping-cart cart"></i></a>
             </div>
             <div class="pro">
                 <img src="../img/products/n3.jpg" alt="">
@@ -174,7 +231,7 @@
                     </div>
                     <h4>$78</h4>
                 </div>
-                <a href="#"><i class="fal fa-shopping-cart cart"></i></a>
+                <a href="notloggedin.html"><i class="fal fa-shopping-cart cart"></i></a>
             </div>
             <div class="pro">
                 <img src="../img/products/n4.jpg" alt="">
@@ -190,7 +247,7 @@
                     </div>
                     <h4>$78</h4>
                 </div>
-                <a href="#"><i class="fal fa-shopping-cart cart"></i></a>
+                <a href="notloggedin.html"><i class="fal fa-shopping-cart cart"></i></a>
             </div>
             <div class="pro">
                 <img src="../img/products/n5.jpg" alt="">
@@ -206,7 +263,7 @@
                     </div>
                     <h4>$78</h4>
                 </div>
-                <a href="#"><i class="fal fa-shopping-cart cart"></i></a>
+                <a href="notloggedin.html"><i class="fal fa-shopping-cart cart"></i></a>
             </div>
             <div class="pro">
                 <img src="../img/products/n6.jpg" alt="">
@@ -222,7 +279,7 @@
                     </div>
                     <h4>$78</h4>
                 </div>
-                <a href="#"><i class="fal fa-shopping-cart cart"></i></a>
+                <a href="notloggedin.html"><i class="fal fa-shopping-cart cart"></i></a>
             </div>
             <div class="pro">
                 <img src="../img/products/n7.jpg" alt="">
@@ -238,7 +295,7 @@
                     </div>
                     <h4>$78</h4>
                 </div>
-                <a href="#"><i class="fal fa-shopping-cart cart"></i></a>
+                <a href="notloggedin.html"><i class="fal fa-shopping-cart cart"></i></a>
             </div>
             <div class="pro">
                 <img src="../img/products/n8.jpg" alt="">
@@ -254,7 +311,7 @@
                     </div>
                     <h4>$78</h4>
                 </div>
-                <a href="#"><i class="fal fa-shopping-cart cart"></i></a>
+                <a href="notloggedin.html"><i class="fal fa-shopping-cart cart"></i></a>
             </div>
         </div>
     </section>
