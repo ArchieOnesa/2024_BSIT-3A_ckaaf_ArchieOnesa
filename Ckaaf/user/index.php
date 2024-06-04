@@ -1,3 +1,50 @@
+<?php
+session_start();
+
+// Include the connection file
+include "../connection.php";
+
+// Check if connection is successful
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+if (isset($_GET['prodId']) && isset($_GET['quantity']) && isset($_GET['this_page'])) {
+    $user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : "";
+    $item_id = $_GET['prodId'];
+    $prev_page = $_GET['this_page'];
+    $item_qty = $_GET['quantity'];
+
+    // Fetch additional product information from the products table
+    $sql_fetch_product_info = "SELECT prodname, price FROM products WHERE prodId = '$item_id'";
+    $result_product_info = mysqli_query($conn, $sql_fetch_product_info);
+    
+
+    // Check if the query was successful
+    if ($result_product_info && mysqli_num_rows($result_product_info) > 0) {
+        // Fetch the product information
+        $product_info = mysqli_fetch_assoc($result_product_info);
+        $prodname = $product_info['prodname'];
+        $price = $product_info['price'];
+    }
+
+    $totalPrice = $item_qty * $price; 
+
+    $sql_add_to_cart = "INSERT INTO `carts` (`userId`, `prodId`, `price`, `prodname`, `size`, `quantity`, `totalPrice`) VALUES ('$user_id', '$item_id', '$price', '$prodname', 'Standard Size', '$item_qty', '$totalPrice')";
+    $execute_cart = mysqli_query($conn, $sql_add_to_cart);
+
+    if ($execute_cart) {
+        $_SESSION['success_message'] = "Item added to cart successfully."; // Store success message in session
+    } else {
+        echo "Error adding item to cart: " . mysqli_error($conn);
+    }
+
+    header("Location: " . $prev_page . "?status=" . urlencode($_SESSION['success_message'])); // Redirect to the previous page with success message
+    exit(); // Stop executing further code
+}
+$query = "SELECT prodId, prodname, price, prodpic FROM products";
+$result = mysqli_query($conn, $query);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -76,53 +123,31 @@
     </section>
 
     <section id="product1" class="section-p1">
-        <h2>Featured Products</h2>
-        <p>Summer Collection New Morden Design</p>
         <div class="pro-container">
             <?php
-                // Include the connection file
-                include "../connection.php";
-
-                session_start();
-
-                
-
-                // Check if connection is successful
-                if (!$conn) {
-                    die("Connection failed: " . mysqli_connect_error());
-                }
-
-                if (isset($_SESSION['user_id'])) {
-                    // Retrieve the userId from the session
-                    $userId = $_SESSION['user_id'];
-                }
-                // Fetch all products from the products table
-                $query = "SELECT prodId, prodname, price, prodpic FROM products";
-                $result = mysqli_query($conn, $query);
-
-                // Check if there are any products
-                if ($result && mysqli_num_rows($result) > 0) {
-                    // Iterate over each product
-                    while ($productDetails = mysqli_fetch_assoc($result)) {
-                ?>
-                        <a href="sproduct.php?prodId=<?php echo $productDetails['prodId']; ?>">
-                            <div class="pro">
-                                <img src="data:image/jpg;base64,<?php echo base64_encode($productDetails['prodpic']); ?>" />
-                                <div class="des">
-                                    <h5><?php echo $productDetails['prodname']; ?></h5>
-                                    <div class="star">
-                                        <!-- You can display star ratings here if available -->
-                                    </div>
-                                    <h4>$<?php echo $productDetails['price']; ?></h4>
+            if ($result && mysqli_num_rows($result) > 0) {
+                while ($row = mysqli_fetch_assoc($result)) {
+            ?>
+                    <a href="sproduct.php?prodId=<?php echo $row['prodId']; ?>">
+                        <div class="pro">
+                            <img src="data:image/jpg;base64,<?php echo base64_encode($row['prodpic']); ?>" />
+                            <div class="des">
+                                <h5><?php echo $row['prodname']; ?></h5>
+                                <div class="star">
+                                    <!-- You can display star ratings here if available -->
                                 </div>
-                                <a href="prodId=<?php echo $productDetails['prodId']; ?>&quantity=1"><i class="fal fa-shopping-cart cart"></i></a>
+                                <h4>$<?php echo $row['price']; ?></h4>
                             </div>
-                        </a>
-                <?php
-                    }
+                            <a href="index.php?prodId=<?php echo $row['prodId']; ?>&quantity=1&this_page=index.php"><i class="fal fa-shopping-cart cart"></i></a>
+                        </div>
+                    </a>
+            <?php
                 }
-                ?>
-             </div>
+            } else {
+                echo "No products available.";
+            }
+            ?>
+        </div>
     </section>
 
  

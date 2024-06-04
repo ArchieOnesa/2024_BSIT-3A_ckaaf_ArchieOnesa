@@ -35,7 +35,7 @@
             </ul>
         </div>
         <div id="mobile">
-            <a href="cart.php"><i class="far fa-shopping-bag"></i></a>
+            <a href="request/action.php"><i class="far fa-shopping-bag"></i></a>
             <i id="bar" class="fas fa-outdent"></i>
         </div>
     </section>
@@ -73,7 +73,7 @@
                             </div>
                             <h4>$<?php echo $row['price']; ?></h4>
                         </div>
-                        <a href="cart.php"><i class="fal fa-shopping-cart cart"></i></a>
+                        <a href="request/action.php"><i class="fal fa-shopping-cart cart"></i></a>
                     </div>
                 </a>
             <?php

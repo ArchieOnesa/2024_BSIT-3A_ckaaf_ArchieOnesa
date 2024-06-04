@@ -15,8 +15,11 @@ if (isset($_SESSION['user_id'])) {
 }
 
 // Fetch completed orders from the database
-$sql_fetch_order_items = "SELECT * FROM orders WHERE userId = '$user_id' AND orderStatus = 'Completed' ORDER BY order_reference_number";
+$sql_fetch_order_items = "SELECT * FROM orders WHERE userId = '$user_id' 
+                        AND (orderStatus = 'Recieved' AND payment_status ='Completed')";
 $result_order_items = mysqli_query($conn, $sql_fetch_order_items);
+
+
 ?>
 
 <!DOCTYPE html> 
@@ -65,7 +68,7 @@ $result_order_items = mysqli_query($conn, $sql_fetch_order_items);
                 <li><a href="myOrders_shipped.php">Shipped</a></li>
                 <li><a href="myOrders_delivered.php">Delivered</a></li>
                 <li><a class="active" href="myOrders_completed.php">Completed</a></li>
-                <li><a href="myOrders.php">Canceled</a></li>
+                <li><a href="myOrders_canceled.php">Canceled</a></li>
             </ul>
         </div>
   
@@ -85,6 +88,7 @@ $result_order_items = mysqli_query($conn, $sql_fetch_order_items);
                         <td>Quantity</td>
                         <td>Size</td>
                         <td>Total Price</td>
+                        <td>Order Date</td>
                         <td>Status</td>
                     </tr>
                 </thead>
@@ -101,15 +105,17 @@ $result_order_items = mysqli_query($conn, $sql_fetch_order_items);
                             if ($current_order_reference != $row['order_reference_number']) {
                                 if ($current_order_reference != "") {
                                     // Close the previous order group
-                                    echo "<tr class='$row_class'><td colspan='8' id='totalorder'>Total: $total_price</td></tr>";
+                                    echo "<tr class='$row_class'><td colspan='9' id='totalorder'>Total: $total_price</td></tr>";
                                 }
                                 $current_order_reference = $row['order_reference_number'];
+                                $timestamp = strtotime($row['orderDate']);
+                                $date = date('Y-m-d', $timestamp);
                                 $subtotal = $row['totalPrice'];
                                 $total_price =+ $subtotal;
                                 $size = $row['size'];
                                 $toggle_class = !$toggle_class;
                                 $row_class = $toggle_class ? "order-batch-1" : "order-batch-2";
-                                echo "<tr class='$row_class'><td colspan='8' id='refnum'><strong style='color:black';>Order Reference Number: </strong>" . $current_order_reference . "</td></tr>";
+                                echo "<tr class='$row_class'><td colspan='9' id='refnum'><strong style='color:black';>Order Reference Number: </strong>" . $current_order_reference . "</td></tr>";
                             }
 
                             // Fetch additional product details if needed
@@ -128,18 +134,19 @@ $result_order_items = mysqli_query($conn, $sql_fetch_order_items);
                                 <td><?php echo $row['quantity'];?></td>    
                                 <td><?php echo $size;?></td>
                                 <td>$<?php echo $subtotal;?></td>
-                                <td style="color: green; font-weight: 600;"><?php echo $row['orderStatus'];?></td>
+                                <td><?php echo $date;?></td>
+                                <td style="color: green; font-weight: 600;">Completed</td>
                             </tr>
 
                     <?php
                             $counter++;
                         }
                         // Close the last order group
-                        echo "<tr class='$row_class' ><td colspan='8' id='totalorder'>Total: $total_price</td></tr>";
+                        echo "<tr class='$row_class' ><td colspan='9' id='totalorder'>Total: $total_price</td></tr>";
                         
                     } else {
                         // Display a message if no products are ordered
-                        echo "<tr><td colspan='8'>No completed orders found.</td></tr>";
+                        echo "<tr><td colspan='9'>No completed orders found.</td></tr>";
                     }
                     ?>
                 </tbody>

@@ -144,7 +144,7 @@
                     </div>
                     <h4>$78</h4>
                 </div>
-                <a href="#"><i class="fal fa-shopping-cart cart"></i></a>
+                <a href="request/action.php"><i class="fal fa-shopping-cart cart"></i></a>
             </div>
             <div class="pro">
                 <img src="img/products/n2.jpg" alt="">
@@ -160,7 +160,7 @@
                     </div>
                     <h4>$78</h4>
                 </div>
-                <a href="#"><i class="fal fa-shopping-cart cart"></i></a>
+                <a href="request/action.php"><i class="fal fa-shopping-cart cart"></i></a>
             </div>
             <div class="pro">
                 <img src="img/products/n3.jpg" alt="">
@@ -176,7 +176,7 @@
                     </div>
                     <h4>$78</h4>
                 </div>
-                <a href="#"><i class="fal fa-shopping-cart cart"></i></a>
+                <a href="request/action.php"><i class="fal fa-shopping-cart cart"></i></a>
             </div>
             <div class="pro">
                 <img src="img/products/n4.jpg" alt="">
@@ -192,7 +192,7 @@
                     </div>
                     <h4>$78</h4>
                 </div>
-                <a href="#"><i class="fal fa-shopping-cart cart"></i></a>
+                <a href="request/action.php"><i class="fal fa-shopping-cart cart"></i></a>
             </div>
             <div class="pro">
                 <img src="img/products/n5.jpg" alt="">
@@ -208,7 +208,7 @@
                     </div>
                     <h4>$78</h4>
                 </div>
-                <a href="#"><i class="fal fa-shopping-cart cart"></i></a>
+                <a href="request/action.php"><i class="fal fa-shopping-cart cart"></i></a>
             </div>
             <div class="pro">
                 <img src="img/products/n6.jpg" alt="">
@@ -224,7 +224,7 @@
                     </div>
                     <h4>$78</h4>
                 </div>
-                <a href="#"><i class="fal fa-shopping-cart cart"></i></a>
+                <a href="request/action.php"><i class="fal fa-shopping-cart cart"></i></a>
             </div>
             <div class="pro">
                 <img src="img/products/n7.jpg" alt="">
@@ -240,7 +240,7 @@
                     </div>
                     <h4>$78</h4>
                 </div>
-                <a href="#"><i class="fal fa-shopping-cart cart"></i></a>
+                <a href="request/action.php"><i class="fal fa-shopping-cart cart"></i></a>
             </div>
             <div class="pro">
                 <img src="img/products/n8.jpg" alt="">
@@ -256,7 +256,7 @@
                     </div>
                     <h4>$78</h4>
                 </div>
-                <a href="#"><i class="fal fa-shopping-cart cart"></i></a>
+                <a href="request/action.php"><i class="fal fa-shopping-cart cart"></i></a>
             </div>
         </div>
     </section>
@@ -331,9 +331,8 @@
 
         <div class="col">
             <h4>My Account</h4>
-            <a href="#">Sign In</a>
-            <a href="#">View Cart</a>
-            <a href="#">My Wishlist</a>
+            <a href="login.php">Sign In</a>
+            <a href="cart.php">View Cart</a>
             <a href="#">Track My Order</a>
             <a href="#">Help</a>
         </div>

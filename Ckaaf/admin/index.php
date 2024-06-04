@@ -41,15 +41,15 @@
         <h1>Sales Report</h1>
     </div>
 
-    
+    <!-- Number of Sales -->
     <section class="dashboard">
         <div class="box-container">
-
+            
             <div class="box1">
                 <?php
                 include "../connection.php";
 
-                $query = "SELECT COUNT(*) AS total_sales FROM sales";
+                $query = "SELECT COUNT(*) AS total_sales FROM orders WHERE orderStatus = 'Recieved' AND payment_status = 'Completed'";
                 $result = mysqli_query($conn, $query);
 
                 if ($result) {
@@ -65,11 +65,13 @@
                 ?>
             </div>
 
+
+            <!-- Total amount of Sales -->
             <div class="box2">
                 <?php
                 include "../connection.php";
 
-                $query = "SELECT SUM(totalPrice) AS total_amount FROM orders";
+                $query = "SELECT SUM(totalPrice) AS total_amount FROM orders WHERE orderStatus = 'Recieved' AND payment_status = 'Completed'";
                 $result = mysqli_query($conn, $query);
 
                 if ($result) {
@@ -85,11 +87,13 @@
                 ?>
             </div>
 
+
+            <!-- number of products sold -->
             <div class="box3">
                 <?php
                 include "../connection.php";
 
-                $query = "SELECT SUM(quantity) AS total_products FROM orders";
+                $query = "SELECT SUM(quantity) AS total_products FROM orders WHERE orderStatus = 'Recieved' AND payment_status = 'Completed'";
                 $result = mysqli_query($conn, $query);
 
                 if ($result) {
@@ -104,12 +108,14 @@
                 ?>
             </div>
 
+
+            <!-- Users with Pending Payments -->
             <div class="box4">
                 <?php
                 include "../connection.php";
 
                 $total_pending_users = 0;
-                $query = "SELECT COUNT(DISTINCT userId) AS total_pending_users FROM orders WHERE payment_status = 'Pending'";
+                $query = "SELECT COUNT(DISTINCT order_reference_number) AS total_pending_users FROM orders WHERE payment_status = 'Pending'";
                 $result = mysqli_query($conn, $query) or die ('Query failed');
                 if (mysqli_num_rows($result) > 0) {
                     $row = mysqli_fetch_assoc($result);
@@ -120,12 +126,13 @@
                 <p>Users with Pending Payments</p>
             </div>
 
+            <!-- Users with Completed Payment -->
             <div class="box5">
                 <?php
                 include "../connection.php";
 
                 $total_confirmed_users = 0;
-                $query = "SELECT COUNT(DISTINCT userId) AS total_confirmed_users FROM orders WHERE payment_status = 'Confirmed'";
+                $query = "SELECT COUNT(DISTINCT userId) AS total_confirmed_users FROM orders WHERE payment_status = 'Completed'";
                 $result = mysqli_query($conn, $query) or die ('Query failed');
                 if (mysqli_num_rows($result) > 0) {
                     $row = mysqli_fetch_assoc($result);
@@ -133,9 +140,11 @@
                 }
                 ?>
                 <h3><?php echo $total_confirmed_users; ?></h3>
-                <p>Users with Confirmed Payment</p>
+                <p>Users with Completed Payment</p>
             </div>
         
+
+            <!-- Number of Users -->
             <div class="box6">
                 <?php
                 include "../connection.php";

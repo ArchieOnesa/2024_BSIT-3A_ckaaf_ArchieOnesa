@@ -124,11 +124,15 @@
                     <div class="single-pro-details">
                         <h4><?php echo $productDetails['prodname']; ?></h4>
                         <h2>$<?php echo $productDetails['price']; ?></h2>
-                        <select>
-                            <option>Select Size</option>
-                            <!-- Add options for different sizes if applicable -->
+                        <select name="size" form="addToCartForm">
+                            <option value="">Select Size</option>
+                            <option value="XS">XS</option>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
                         </select>
-                        <form method="POST" id="addToCartForm" action="">
+                        <form method="POST" id="addToCartForm" action="request/action.php">
                             <input type="hidden" name="prodId" value="<?php echo $productDetails['prodId']; ?>">
                             <input type="number" name="quantity" value="<?php echo isset($_GET['quantity']) ? $_GET['quantity'] : '1'; ?>">
                             <button class="normal" type="submit" name="addToCart">Add To Cart</button>
@@ -171,7 +175,7 @@
                                     </div>
                                     <h4>$<?php echo $productDetails['price']; ?></h4>
                                 </div>
-                                <a href="shop.php?prodId=<?php echo $productDetails['prodId']; ?>&quantity=1&this_page=shop.php&user_id=<?php echo $userId; ?>"><i class="fal fa-shopping-cart cart"></i></a>
+                                <a href="request/action.php"><i class="fal fa-shopping-cart cart"></i></a>
                             </div>
                         </a>
                 <?php

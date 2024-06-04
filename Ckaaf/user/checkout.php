@@ -13,6 +13,10 @@ if (isset($_SESSION['user_id'])) {
     echo "User not logged in.<br>";
 }
 
+if (isset($_POST['selected_items_json'])) {
+    $_SESSION['selectedItems'] = json_decode($_POST['selected_items_json'], true);
+}
+
 // Function to generate a unique order reference number
 function generateOrderReferenceNumber() {
     return uniqid('order_', true);
@@ -25,6 +29,8 @@ $order_reference_number = generateOrderReferenceNumber();
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['selected_items']) && isset($_POST['quantities'])) {
         $selected_items = $_POST['selected_items'];
+        $selectedItems = [];
+        $selectedItems = $_SESSION['selectedItems'];
         $quantities = $_POST['quantities'];
         $subtotal = 0;
         $shipping_fee_per_product = 1; // Shipping fee per product
@@ -260,6 +266,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <input type="text" id="gcash-reference" name="reference" required><br>
                 <label for="gcash-name">Account Name:</label><br>
                 <input type="text" id="gcash-name" name="name" required><br>
+                <label for="account_number">Account Number:</label><br>
+                <input type="text" id="account_number" name="account_number" required><br>
                 <label for="gcash-address">Address:</label><br>
                 <input type="text" id="gcash-address" name="address" required><br>
                 <input type="hidden" name="order_reference_number" value="<?php echo $order_reference_number; ?>">
@@ -275,6 +283,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <input type="hidden" name="order_reference_number" value="<?php echo $order_reference_number; ?>">
             </div>
 
+            <input type="hidden" name="selected_items" value="<?php echo json_encode($selected_items); ?>">
             <button id="placeOrder" type="submit" class="btn btn-primary">Place Order</button>
         </form>
         </div>

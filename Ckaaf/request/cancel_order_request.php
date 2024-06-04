@@ -1,50 +1,36 @@
 <?php
-// Include the connection file
 include "../connection.php";
-
 session_start();
 
-// Check if connection is successful
+if (isset($_SESSION['user_id'])) {
+    $userId = $_SESSION['user_id'];
+}
+
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
-// Check if 'order_reference_number is set in the request
-if (isset($_GET['order_reference'])) {
-    // Get the order_reference and sanitize it
-    $orderReference = intval($_GET['order_reference']);
-    
-    // Prepare the SQL statement
-    $sql = "SELECT orderStatus FROM orders WHERE orderStatus = $orderReference;";
-    
-    // Initialize prepared statement
-    $stmt = $conn->prepare($sql);
-    
-    // Check if statement preparation is successful
-    if ($stmt === false) {
-        die("Error preparing statement: " . $conn->error);
+if (isset($_GET['ref_num'])) {
+    // Get the order reference number
+    $orderReference = $_GET['ref_num'];
+
+    // Update the cancel_status of items under the specified order reference number
+    $sql_update_cancel_status = "UPDATE `orders` SET `cancel_request` = 'Pending' WHERE `order_reference_number` = ?";
+    $stmt_update = $conn->prepare($sql_update_cancel_status);
+    $stmt_update->bind_param("s", $orderReference); // Note: 's' for string
+
+    if ($stmt_update->execute()) {
+        $message = "Cancellation request sent for order reference number: $orderReference";
+    } else {
+        $message = "Error updating cancel status: " . $stmt_update->error;
     }
 
-    // Bind the parameter
-    $stmt->bind_param("i", $cartId);
-    
-    // Execute the statement
-    if ($stmt->execute()) {
-        $message = "Record deleted successfully";
-    } else {
-        $message = "Error deleting record: " . $stmt->error;
-    }
-    
-    // Close the statement
-    $stmt->close();
-} else {
-    $message = "No cart ID provided";
+    $stmt_update->close();
 }
 
-// Close the connection
 $conn->close();
 
-// Redirect back to the cart page with a status message
-header("Location: ../user/cart.php?status=" . urlencode($message));
+// Redirect back to the previous page with a status message
+header("Location: {$_SERVER['HTTP_REFERER']}?status=" . urlencode($message));
 exit();
 ?>

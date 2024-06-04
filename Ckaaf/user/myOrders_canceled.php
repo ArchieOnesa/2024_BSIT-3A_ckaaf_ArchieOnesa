@@ -14,6 +14,9 @@ if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
 }
 
+// Fetch completed orders from the database
+$sql_fetch_order_items = "SELECT * FROM orders WHERE userId = '$user_id' AND (cancel_request = 'Approve' AND orderStatus = 'Cancelled') ORDER BY order_reference_number";
+$result_order_items = mysqli_query($conn, $sql_fetch_order_items);
 ?>
 
 <!DOCTYPE html> 
@@ -58,11 +61,11 @@ if (isset($_SESSION['user_id'])) {
     <section id="page-header" class="about-header">
         <div class="myordersnav">
             <ul id="ordernavbar">
-                <li><a class="active" href="my_orders.php">Pending</a></li>
+                <li><a href="my_orders.php">Pending</a></li>
                 <li><a href="myOrders_shipped.php">Shipped</a></li>
                 <li><a href="myOrders_delivered.php">Delivered</a></li>
                 <li><a href="myOrders_completed.php">Completed</a></li>
-                <li><a href="myOrders_canceled.php">Canceled</a></li>
+                <li><a class="active" href="myOrders_canceled.php">Canceled</a></li>
             </ul>
         </div>
   
@@ -71,6 +74,7 @@ if (isset($_SESSION['user_id'])) {
     </section>
 
     <section id="cart" class="section-p1">
+        <form action="../request/cancel_order_request.php" method="post">
             <table width="100%">
                 <thead>
                     <tr>
@@ -81,7 +85,6 @@ if (isset($_SESSION['user_id'])) {
                         <td>Quantity</td>
                         <td>Size</td>
                         <td>Total Price</td>
-                        <td>Order Date</td>
                         <td>Status</td>
                     </tr>
                 </thead>
@@ -91,40 +94,16 @@ if (isset($_SESSION['user_id'])) {
                     $current_order_reference = "";
                     $toggle_class = false;
 
-                                        
-                    // Fetch ordered items from the database
-                    $sql_fetch_order_items = "SELECT * FROM orders WHERE userId = '$user_id' 
-                                            AND orderStatus = 'Pending'
-                                            ORDER BY order_reference_number";
-                    $result_order_items = mysqli_query($conn, $sql_fetch_order_items);
-                    
-                    // Check if there are any ordered items found
+                    // Check if there are any completed orders found
                     if (mysqli_num_rows($result_order_items) > 0) {
-                        // Loop through fetched order items and display them
+                        // Loop through fetched completed orders and display them
                         while ($row = mysqli_fetch_assoc($result_order_items)) {
-                            $cstat = $row['cancel_request'];
                             if ($current_order_reference != $row['order_reference_number']) {
                                 if ($current_order_reference != "") {
                                     // Close the previous order group
                                     echo "<tr class='$row_class'><td colspan='9' id='totalorder'>Total: $total_price</td></tr>";
-                                    $button_display = $row['cancel_request'];
-                                    $button_display ="Cancel Order";
-                                    $current_order_reference = $row['order_reference_number'];
-                                    if ($cstat == "Pending"){
-                                        $button_display = "Waiting for cancellation approval...";
-                                    }else if ($cstat == "No Action"){
-                                        $button_display = "Cancel Order";
-                                    }else if($cstat == "Reject"){
-                                        $button_display = "Rejected";
-                                        ?> <style> .cancel-button{pointer-events: none;}</style> <?php
-                                    }
-                                    echo "<tr class='$row_class'><td colspan='9' style='padding:20px;'>
-                                                <a href='../request/cancel_order_request.php?ref_num=$current_order_reference' class='cancel-button'>". $button_display ."</a>
-                                          </td></tr>";
                                 }
                                 $current_order_reference = $row['order_reference_number'];
-                                $timestamp = strtotime($row['orderDate']);
-                                $date = date('Y-m-d', $timestamp);
                                 $subtotal = $row['totalPrice'];
                                 $total_price =+ $subtotal;
                                 $size = $row['size'];
@@ -149,8 +128,7 @@ if (isset($_SESSION['user_id'])) {
                                 <td><?php echo $row['quantity'];?></td>    
                                 <td><?php echo $size;?></td>
                                 <td>$<?php echo $subtotal;?></td>
-                                <td><?php echo $date?></td>
-                                <td style="color: orange; font-weight: 600;"><?php echo $row['orderStatus'];?></td>
+                                <td style="color: green; font-weight: 600;"><?php echo $row['orderStatus'];?></td>
                             </tr>
 
                     <?php
@@ -158,30 +136,16 @@ if (isset($_SESSION['user_id'])) {
                         }
                         // Close the last order group
                         echo "<tr class='$row_class' ><td colspan='9' id='totalorder'>Total: $total_price</td></tr>";
-                        $button_display ="Cancel Order";
-                        if ($cstat == "Pending"){
-                            $button_display = "Waiting for cancellation approval...";
-                        }else if ($cstat == "No Action"){
-                            $button_display = "Cancel Order";
-                        }else if($cstat == "Reject"){
-                            $button_display = "Rejected";
-                            ?> <style> .cancel-button{pointer-events: none;}</style> <?php
-                        }
-                        echo "<tr class='$row_class'><td colspan='9' style='padding:20px;'>
-                                <a href='../request/cancel_order_request.php?ref_num=$current_order_reference' class='cancel-button'>". $button_display ."</a>
-                            </td></tr>";
                         
                     } else {
                         // Display a message if no products are ordered
-                        echo "<tr><td colspan='9'>No products ordered are found.</td></tr>";
+                        echo "<tr><td colspan='9'>No canceled orders found.</td></tr>";
                     }
                     ?>
                 </tbody>
             </table>
-
+        </form>
     </section>
-
-
 
     <section id="cart-add" class="section-p1">
         <div id="coupon">
@@ -293,31 +257,7 @@ if (isset($_SESSION['user_id'])) {
             font-weight: 700;
             color: #088178;
         }
-        .cancel-button {
-            background-color: red;
-            color: white;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-            border-radius: 7px;
-            margin-bottom: 15px;
-            text-decoration: none;
-        }
-
-        .cancel-button:hover{
-            background-color: lightsalmon;
-        }
-
-        .cancel-button::after{
-            background-color: orange;
-        }
-
-
     </style>
-
-
-
-
 
     <script src="script.js"></script>
 </body>

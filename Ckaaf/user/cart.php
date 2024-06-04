@@ -3,6 +3,7 @@
 include "../connection.php";
 
 session_start();
+$_SESSION['selectedItems'] = [];
 
 // Check if connection is successful
 if (!$conn) {
@@ -122,6 +123,7 @@ $result_cart_items = mysqli_query($conn, $sql_fetch_cart_items);
                                 <td colspan='8'><h3>Total: $<span id="total-price">0.00</span></h3></td>
                             </tr>
                             <tr>
+                                <input type="hidden" name="selected_items_json" id="selected_items_json">
                                 <td colspan='8'><button type="submit" class="checkout_btn" style="margin-top: 20px; padding: 10px 20px; background-color: green; color: white; border: none; border-radius: 8px;">Check out</button></td>
                             </tr>
                         <?php endif; ?>
@@ -220,6 +222,16 @@ $result_cart_items = mysqli_query($conn, $sql_fetch_cart_items);
 
     // Initialize total price on page load
     document.addEventListener('DOMContentLoaded', updateTotalPrice);
+
+
+    document.getElementById('cart-form').addEventListener('submit', function(event) {
+        const selectedItems = [];
+        document.querySelectorAll('.item-check:checked').forEach(checkbox => {
+            selectedItems.push(checkbox.value);
+        });
+        document.getElementById('selected_items_json').value = JSON.stringify(selectedItems);
+    });
+
 </script>
 
 

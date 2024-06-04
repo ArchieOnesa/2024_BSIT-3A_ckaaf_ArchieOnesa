@@ -8,6 +8,7 @@ if (!$conn) {
 
 if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
+    $cartIds = isset($_SESSION['selectedItems']) ? $_SESSION['selectedItems'] : [];
 } else {
     // Redirect the user if not logged in
     header("Location: login.php");
@@ -21,36 +22,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $payment_method = $_POST['f_payment_method'];
         $order_reference_number = $_POST['order_reference_number'];
         $account_number = $_POST['phone'];
-        $address = $_POST ['address'];
+        $address = $_POST['address'];
+        $quantity = $_POST['quantity'];
 
-        if ($payment_method == 'GCash'){
+        if ($payment_method == 'GCash') {
             $payment_status = 'Completed';
-            $account_name = $_POST ['name'];
+            $account_name = $_POST['name'];
             $account_reference_number = $_POST['reference'];
+            $account_number = $_POST['account_number'];
         } else {
-            $payment_status = "Pending";
             $account_reference_number = "COD";
-            $sql_fetch_account_name = "SELECT firstname, lastname FROM users WHERE user_id = '$user_Id'";
+            $sql_fetch_account_name = "SELECT firstname, lastname FROM users WHERE user_id = '$user_id'";
             $result_account_name = mysqli_query($conn, $sql_fetch_account_name);
             $row = mysqli_fetch_assoc($result_account_name);
             $account_name = $row['firstname'] . " " . $row['lastname'];
+            $payment_status = 'Pending';
         }
 
+        // Initialize total price
+        $total_price = 0;
 
-        // Get user's cart items
-        $sql_fetch_cart_items = "SELECT * FROM carts WHERE userId = '$user_id'";
-        $result_cart_items = mysqli_query($conn, $sql_fetch_cart_items);
+        // Begin transaction
+        mysqli_begin_transaction($conn);
 
-        // If cart items found
-        if (mysqli_num_rows($result_cart_items) > 0) {
-            // Initialize total price
-            $total_price = 0;
+        // Loop through selected cart IDs
+        foreach ($cartIds as $cartId) {
+            // Get the cart item details
+            $sql_fetch_cart_item = "SELECT * FROM carts WHERE cartId = '$cartId' AND userId = '$user_id'";
+            $result_cart_item = mysqli_query($conn, $sql_fetch_cart_item);
 
-            // Begin transaction
-            mysqli_begin_transaction($conn);
-
-            // Loop through cart items
-            while ($cart_item = mysqli_fetch_assoc($result_cart_items)) {
+            if ($result_cart_item && mysqli_num_rows($result_cart_item) > 0) {
+                $cart_item = mysqli_fetch_assoc($result_cart_item);
                 $prodId = $cart_item['prodId'];
                 $quantity = $cart_item['quantity'];
                 $size = $cart_item['size'];
@@ -68,8 +70,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     $total_price += $item_total_price;
 
                     // Insert into orders table
-                    $sql_insert_order = "INSERT INTO orders (order_reference_number, userId, totalPrice, orderStatus, prodId, quantity, size, price, payment_method, account_number, account_reference_number, account_name, payment_status, address) 
-                                                     VALUES ('$order_reference_number', '$user_id', '$item_total_price', 'Pending', '$prodId', '$quantity', '$size', '$price', '$payment_method', '$account_number', '$account_reference_number', '$account_name', '$payment_status', '$address')";
+                    $sql_insert_order = "INSERT INTO orders (order_reference_number, userId, totalPrice, orderStatus, prodId, quantity, `size`, price, payment_method, phone, account_reference_number, account_name, payment_status, `address`, cancel_request) 
+                                                 VALUES ('$order_reference_number', '$user_id', '$item_total_price', 'Pending', '$prodId', '$quantity', '$size', '$price', '$payment_method', '$account_number', '$account_reference_number', '$account_name', '$payment_status', '$address', 'No action')";
 
                     if (!mysqli_query($conn, $sql_insert_order)) {
                         // Rollback transaction on error
@@ -81,27 +83,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     mysqli_rollback($conn);
                     die("Product not found");
                 }
-            }
-
-            // Delete cart items after successfully inserting into orders table
-            $sql_delete_cart_items = "DELETE FROM carts WHERE userId = '$user_id'";
-            if (!mysqli_query($conn, $sql_delete_cart_items)) {
-                // Rollback transaction on error
+            } else {
+                // Cart item not found, rollback transaction and exit
                 mysqli_rollback($conn);
-                die("Error deleting cart items: " . mysqli_error($conn));
+                die("Cart item not found");
             }
-
-            // Commit transaction if everything is successful
-            mysqli_commit($conn);
-
-            // Redirect user to a success page
-            header("Location: ../user/my_orders.php?<?php echo $account_name?>");
-            exit();
-        } else {
-            // No items in cart
-            header("Location: my_orders.php<?php echo $account_name?>");
-            exit();
         }
+
+        // Delete only the processed cart items
+        $cart_ids_string = implode(',', array_map('intval', $cartIds)); // Ensure IDs are integers
+        $sql_delete_cart_items = "DELETE FROM carts WHERE cartId IN ($cart_ids_string)";
+
+        if (!mysqli_query($conn, $sql_delete_cart_items)) {
+            // Rollback transaction on error
+            mysqli_rollback($conn);
+            die("Error deleting cart items: " . mysqli_error($conn));
+        }
+
+        // Commit transaction if everything is successful
+        mysqli_commit($conn);
+
+        // Optionally, you can also unset the session variables if you no longer need them
+        unset($_SESSION['selectedItems']);
+
+        // Redirect user to a success page
+        header("Location: ../user/my_orders.php");
+        exit();
     } else {
         // Payment method not selected
         header("Location: checkout.php");
